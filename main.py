@@ -334,7 +334,7 @@ class GeminiTwitterBot:
         pre_prompt = f"""
         IMPORTANT: Generate responses in plain text only. DO NOT add any hashtags, 
         do not add # symbols anywhere, do not add tags at the end of the response, 
-        and do not mark keywords with #. The response must be pure text. Remember your name is `{self.persona.get('name')}`.
+        and do not mark keywords with #. The response must be pure text. Remember your name is `{self.persona.get('name')} Make sure your response is less than 280 characters.`.
         
         Examples of what NOT to do:
         - "Great insight about AI #AI #Tech"
