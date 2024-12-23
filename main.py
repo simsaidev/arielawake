@@ -333,7 +333,8 @@ class GeminiTwitterBot:
         rules = "\n".join(self.persona.get("rules", []))
         bio = "\n".join(self.persona.get("bio", []))
         lore = "\n".join(self.persona.get("lore", []))
-        random_actions = "\n".join(self.persona.get("random_actions", []))
+        random_actions = "\n".join(self.persona.get("style", {}).get("random_actions", []))
+        style = "\n".join(self.persona.get("style", {}).get("all", []))
         # Add pre-prompt instruction about hashtags
         pre_prompt = f"""
         IMPORTANT: Generate responses in plain text only. DO NOT add any hashtags, 
@@ -358,6 +359,9 @@ class GeminiTwitterBot:
         
         Lore (for reference of past only):
         {lore}
+        
+        Style:
+        {style}
         
         Core Rules:
         {rules}
