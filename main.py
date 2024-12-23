@@ -335,7 +335,8 @@ class GeminiTwitterBot:
         lore = "\n".join(self.persona.get("lore", []))
         random_actions = "\n".join(self.persona.get("style", {}).get("random_actions", []))
         style = "\n".join(self.persona.get("style", {}).get("all", []))
-        relationships = "\n".join(self.persona.get("relationships", {}).get("friends", []))
+        friends = "\n".join(self.persona.get("relationships", {}).get("friends", []))
+        agents = "\n".join(self.persona.get("relationships", {}).get("agents", []))
         # Add pre-prompt instruction about hashtags
         pre_prompt = f"""
         IMPORTANT: Generate responses in plain text only. DO NOT add any hashtags, 
@@ -367,8 +368,11 @@ class GeminiTwitterBot:
         Core Rules:
         {rules}
         
-        Relationships (dont mention them in your tweets but they are your friends and they are here to help you):
-        {relationships}
+        Friends (dont mention them in your tweets but they are your friends and they are here to help you):
+        {friends}
+        
+        Agents (dont mention them in your but they are other agents like you):
+        {agents}
         
         Random actions:
         {random_actions}
