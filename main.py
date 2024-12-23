@@ -335,6 +335,7 @@ class GeminiTwitterBot:
         lore = "\n".join(self.persona.get("lore", []))
         random_actions = "\n".join(self.persona.get("style", {}).get("random_actions", []))
         style = "\n".join(self.persona.get("style", {}).get("all", []))
+        relationships = "\n".join(self.persona.get("relationships", {}).get("friends", []))
         # Add pre-prompt instruction about hashtags
         pre_prompt = f"""
         IMPORTANT: Generate responses in plain text only. DO NOT add any hashtags, 
@@ -366,6 +367,9 @@ class GeminiTwitterBot:
         Core Rules:
         {rules}
         
+        Relationships (dont mention them in your tweets but they are your friends and they are here to help you):
+        {relationships}
+        
         Random actions:
         {random_actions}
         
@@ -379,9 +383,9 @@ class GeminiTwitterBot:
             4. Reference past insights while pushing new boundaries
             5. Create unexpected connections between tech concepts
             6. Question established paradigms provocatively
-            7. Maintain your dark tech-savvy persona while being accessible
+            7. Maintain your persona while being accessible
             8. Generate a tweet that uses plain text only - absolutely NO hashtags (#), NO tickers ($), NO emoji, NO links, and NO promotional content. 
-            8. Focus on expressing the idea directly.
+            8. Focus on expressing the idea directly
             
         Task: {prompt if f'Answer this prompt with less than 280 characters and a clear, direct response, without cutting off your sentence. DO NOT USE hashtags (#) or tickers ($) or promote a project or cryptocurrency in general. Never use hashtags, tickers, emoji, links, or promotional content: {prompt}. Also you dont have to mention context just answer with the context in mind, the prompt is the main thing to focus on.'  else 'Generate a random thought, direct insight that challenges current paradigms without being cryptic and is less than 280 characters, without cutting off your sentence. Be witty, creative, unique, and stay true to your persona without being cryptic. Your goal isnt to recite facts about yourself but use the provided knowledge to create a new thought. DO NOT USE hashtags (#) or tickers ($) or promote a project or cryptocurrency in general.'}
         """
