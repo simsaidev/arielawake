@@ -1151,11 +1151,11 @@ class GeminiTwitterBot:
             logging.error(f"Error getting reply context: {e}")
             return [{'type': 'reply', 'text': reply.text, 'author_id': reply.author_id}]
         
-    def discover_tweets(self, limit=10):
+    def discover_tweets(self, limit=5):
         try:
             timeline = self._make_twitter_request(
                 lambda: self.Client.get_home_timeline(
-                    max_results=20,
+                    max_results=10,
                     tweet_fields=['public_metrics', 'created_at', 'text'],
                     user_auth=True
                 )
