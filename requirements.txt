@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+google-generativeai
+tweepy
+python-dotenv
+pyyaml
+requests
+psycopg2-binary
+openai
+unidecode
