@@ -36,23 +36,23 @@ class GeminiTwitterBot:
         self.environment = os.getenv('ENVIRONMENT', 'dev')
         
         try:
-            # Load config first
+              # Load config and persona
             self.config = load_config()
+            self.persona = self.config['bot']['persona']
             
-            # Initialize API credentials
-            self.api_key = os.getenv('TWITTER_API_KEY')
-            self.api_key_secret = os.getenv('TWITTER_API_SECRET')
-            self.access_token = os.getenv('TWITTER_ACCESS_TOKEN')
-            self.access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
-            self.bearer_token = os.getenv('TWITTER_BEARER_TOKEN')
-            self.gemini_key = os.getenv('GEMINI_API_KEY')
+            # Environment
+            self.environment = self.config['environment']['name']
             
-            # Validate credentials
-            if not all([self.api_key, self.api_key_secret, self.access_token, 
-                       self.access_token_secret, self.bearer_token, self.gemini_key]):
-                raise ValueError("Missing required API credentials")
+            # API credentials from config
+            twitter_config = self.config['twitter']
+            self.api_key = twitter_config['api_key']
+            self.api_key_secret = twitter_config['api_secret']
+            self.access_token = twitter_config['access_token']
+            self.access_token_secret = twitter_config['access_token_secret']
+            self.bearer_token = twitter_config['bearer_token']
+            self.gemini_key = self.config['gemini']['api_key']
             
-            # Initialize timing configuration
+            # Initialize timing configuration from config
             self.max_tweets_per_hour = self.config['bot']['max_tweets_per_hour']
             self.max_responses_per_hour = self.config['bot']['max_responses_per_hour']
             self.check_interval = self.config['bot']['check_interval']
@@ -61,6 +61,11 @@ class GeminiTwitterBot:
             self.mention_response_delay = self.config['bot']['mention_response_delay']
             self.discover_interval = self.config['bot']['discover_interval']
             
+            # Initialize components
+            self.tweet_cache = TweetCache(self.environment)
+            self.learning_store = LearningStore()
+            self.rate_limiter = RateLimiter()
+            
             # Initialize state tracking
             self._last_tweet_time = None
             self._last_mention_check = None
@@ -68,26 +73,14 @@ class GeminiTwitterBot:
             self._last_cleanup = None
             self.is_configured = False
             
-            # Initialize component classes
-            self.tweet_cache = TweetCache(self.environment)
-            self.learning_store = LearningStore()
-            self.rate_limiter = RateLimiter()
-            
-            # Load persona
-            self.persona = self.load_persona(persona_file)
-            if not self.persona:
-                raise ValueError(f"Failed to load persona from {persona_file}")
-            
             # Initialize APIs
             self._init_apis()
+            
+            logging.info(f"Bot initialized for {self.persona['name']} in {self.environment} environment")
             
             # Set up retries
             self.max_retries = 3
             self.retry_delay = 5
-            
-            logging.info(f"Bot initialized in {self.environment} environment")
-            logging.info(f"Max tweets per hour: {self.max_tweets_per_hour}")
-            logging.info(f"Tweet interval: {self.tweet_interval} seconds")
             
         except Exception as e:
             logging.error(f"Initialization error: {e}")
@@ -1328,7 +1321,7 @@ class GeminiTwitterBot:
 async def create_tweet():
     logging.info("Tweet endpoint called")  # Add logging
     try:
-        bot = GeminiTwitterBot(persona_file='persona.json')
+        bot = GeminiTwitterBot()
         logging.info("Bot initialized")
         
         # Use a direct tweet with default content
@@ -1352,7 +1345,7 @@ async def create_tweet():
 @app.get("/test-auth")
 async def test_auth():
     try:
-        bot = GeminiTwitterBot(persona_file='persona.json')
+        bot = GeminiTwitterBot()
         me = bot.Client.get_me()
         if me and me.data:
             return {
@@ -1368,7 +1361,7 @@ async def test_auth():
 @app.get("/check-tweets")
 async def check_tweets():
     try:
-        bot = GeminiTwitterBot(persona_file='persona.json')
+        bot = GeminiTwitterBot()
         
         # Add delay between API calls
         time.sleep(2)  # 2 second delay
@@ -1404,7 +1397,7 @@ def read_root():
 @app.get("/cache/tweets")
 async def get_cached_tweets():
     try:
-        bot = GeminiTwitterBot(persona_file='persona.json')
+        bot = GeminiTwitterBot()
         tweets = bot.tweet_cache.get_recent_tweets(limit=10)
         return {
             "status": "success",
@@ -1424,7 +1417,7 @@ async def get_cached_tweets():
 @app.get("/learning/interactions")
 async def get_learning_interactions():
     try:
-        bot = GeminiTwitterBot(persona_file='persona.json')
+        bot = GeminiTwitterBot()
         interactions = bot.learning_store.get_recent_interactions()
         return {
             "status": "success",
@@ -1438,7 +1431,7 @@ async def get_learning_interactions():
 @app.post("/cache/clear")
 async def clear_cache():
     try:
-        bot = GeminiTwitterBot(persona_file='persona.json')
+        bot = GeminiTwitterBot()
         bot.tweet_cache.clear_cache()
         return {"status": "success", "message": "Cache cleared"}
     except Exception as e:
@@ -1448,7 +1441,7 @@ async def clear_cache():
 @app.get("/rate-limits")
 async def check_rate_limits():
     try:
-        bot = GeminiTwitterBot(persona_file='persona.json')
+        bot = GeminiTwitterBot()
         status = bot.get_rate_limit_status()
         
         # Get last tweet info
@@ -1469,7 +1462,7 @@ async def check_rate_limits():
 @app.get("/status")
 async def get_bot_status():
     try:
-        bot = GeminiTwitterBot(persona_file='persona.json')
+        bot = GeminiTwitterBot()
         rate_limits = bot.get_rate_limit_status()
         recent_tweets = bot.get_recent_tweets(limit=1)
         
@@ -1507,7 +1500,7 @@ async def startup_event():
         
         while retry_count < max_retries:
             try:
-                bot = GeminiTwitterBot(persona_file='persona.json')
+                bot = GeminiTwitterBot()
                 asyncio.create_task(run_bot(bot))
                 logging.info("Bot background task created successfully")
                 break
@@ -1526,7 +1519,7 @@ async def startup_event():
 async def run_bot_with_retry():
     while True:
         try:
-            bot = GeminiTwitterBot(persona_file='persona.json')
+            bot = GeminiTwitterBot()
             await run_bot(bot)
             break
         except Exception as e:
@@ -1643,7 +1636,7 @@ if __name__ == "__main__":
     )
     
     os.environ['ENVIRONMENT'] = 'prod'
-    bot = GeminiTwitterBot(persona_file='persona.json')
+    bot = GeminiTwitterBot()
     
     loop = asyncio.get_event_loop()
     try:

@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO)
 
 def test_recent_tweets():
     try:
-        bot = GeminiTwitterBot(persona_file='persona.json')
+        bot = GeminiTwitterBot()
         tweets = bot.get_recent_tweets(limit=10)
         
         print("\nRecent Tweets:")

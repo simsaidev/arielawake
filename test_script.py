@@ -4,7 +4,7 @@ from main import GeminiTwitterBot  # Adjust the import based on your file struct
 
 def main():
        # Create an instance of the bot
-       bot = GeminiTwitterBot(persona_file='persona.json')
+       bot = GeminiTwitterBot()
 
        # Test the tweet generation
        test_message = bot.generate_response()
