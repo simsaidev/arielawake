@@ -232,9 +232,13 @@ class GeminiTwitterBot:
         
         Context for what image should mainly be composed about: {tweet_text}
         
-        Use your style: {self.persona.get('image', {}).get('style')}
+        Use your image style: {self.persona.get('image', {}).get('style')}
+        
+        Colors to use: {self.persona.get('image', {}).get('colors')}
         
         Bio for reference: {self.persona.get('bio', {})}
+        
+        Lore for reference: {self.persona.get('lore', {})}
         
         """
         
